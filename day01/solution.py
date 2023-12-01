@@ -1,7 +1,7 @@
 import re
 from aoclib.filereader import FileReader
 
-filereader = FileReader("day-01/input.txt")
+filereader = FileReader("day01/input.txt")
 
 to_digit = {
     "1": "1",
