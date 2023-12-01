@@ -1,4 +1,5 @@
 import argparse
+import os.path
 import sys
 
 from day01.solution import Day1
@@ -22,6 +23,9 @@ args = parser.parse_args()
 
 suffix = f"-{args.input}" if args.input else ""
 filename = f"day{args.day:02}/input{suffix}.txt"
+if not os.path.isfile(filename):
+    print(f"File '{filename}' does not exist", file=sys.stderr)
+    sys.exit(1)
 
 match args.day:
     case 1:
