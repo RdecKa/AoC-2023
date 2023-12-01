@@ -1,7 +1,6 @@
 import re
-from aoclib.filereader import FileReader
+from aoclib.puzzle import Puzzle
 
-filereader = FileReader("day01/input.txt")
 
 to_digit = {
     "1": "1",
@@ -32,16 +31,16 @@ def get_line_value(line, digit_pattern):
     return int(combined)
 
 
-def star1():
-    digit_pattern = "[1-9]"
-    print(sum(filereader.lines(lambda line: get_line_value(line, digit_pattern))))
+class Day1(Puzzle):
+    def star1(self):
+        digit_pattern = "[1-9]"
+        return sum(
+            self.filereader.lines(lambda line: get_line_value(line, digit_pattern))
+        )
 
-
-def star2():
-    # "?=" added to capture overlapping words, like "twone"
-    digit_pattern = "?=([1-9]|one|two|three|four|five|six|seven|eight|nine)"
-    print(sum(filereader.lines(lambda line: get_line_value(line, digit_pattern))))
-
-
-star1()
-star2()
+    def star2(self):
+        # "?=" added to capture overlapping words, like "twone"
+        digit_pattern = "?=([1-9]|one|two|three|four|five|six|seven|eight|nine)"
+        return sum(
+            self.filereader.lines(lambda line: get_line_value(line, digit_pattern))
+        )
