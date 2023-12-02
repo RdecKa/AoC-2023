@@ -3,6 +3,7 @@ import os.path
 import sys
 
 from day01.solution import Day1
+from day02.solution import Day2
 
 
 parser = argparse.ArgumentParser(
@@ -30,6 +31,8 @@ if not os.path.isfile(filename):
 match args.day:
     case 1:
         puzzle = Day1(filename)
+    case 2:
+        puzzle = Day2(filename)
     case _:
         print(f"No solution for day '{args.day}'", file=sys.stderr)
         sys.exit(1)
