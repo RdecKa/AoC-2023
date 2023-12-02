@@ -32,6 +32,11 @@ def get_line_value(line, digit_pattern):
 
 
 class Day1(Puzzle):
+    def __init__(self, filename):
+        super().__init__(filename)
+        self.star1_solution = 55386
+        self.star2_solution = 54824
+
     def star1(self):
         digit_pattern = "[1-9]"
         return sum(

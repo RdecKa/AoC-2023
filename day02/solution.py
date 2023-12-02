@@ -65,6 +65,11 @@ def get_game_power(game: Game):
 
 
 class Day2(Puzzle):
+    def __init__(self, filename):
+        super().__init__(filename)
+        self.star1_solution = 2879
+        self.star2_solution = 65122
+
     def star1(self):
         games = self.filereader.lines(parse_game_from_input_line)
         total = 0
