@@ -26,7 +26,7 @@ set_regex = re.compile("((?:[0-9]+ (?:(?:red|green|blue),? ?))+)")
 ball_regex = re.compile("([0-9]+) (red|green|blue)")
 
 
-def createSet(set_string: str):
+def create_set(set_string: str):
     s = Set()
     parsed = ball_regex.findall(set_string)
     for count, color in parsed:
@@ -41,13 +41,13 @@ def createSet(set_string: str):
     return s
 
 
-def parseGameFromInputLine(line: str):
+def parse_game_from_input_line(line: str):
     game_id = int(game_regex.search(line).group(1))
-    sets = [createSet(s) for s in set_regex.findall(line)]
+    sets = [create_set(s) for s in set_regex.findall(line)]
     return Game(game_id, sets)
 
 
-def isGameValid(game: Game):
+def is_game_valid(game: Game):
     limit_red = 12
     limit_green = 13
     limit_blue = 14
@@ -57,14 +57,22 @@ def isGameValid(game: Game):
     return True
 
 
+def get_game_power(game: Game):
+    red = max(s.red for s in game.sets)
+    green = max(s.green for s in game.sets)
+    blue = max(s.blue for s in game.sets)
+    return red * green * blue
+
+
 class Day2(Puzzle):
     def star1(self):
-        games = list(self.filereader.lines(parseGameFromInputLine))
+        games = self.filereader.lines(parse_game_from_input_line)
         total = 0
         for game in games:
-            if isGameValid(game):
+            if is_game_valid(game):
                 total += game.game_id
         return total
 
     def star2(self):
-        return 0
+        games = self.filereader.lines(parse_game_from_input_line)
+        return sum(get_game_power(g) for g in games)
