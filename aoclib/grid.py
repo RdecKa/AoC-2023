@@ -13,6 +13,22 @@ class Grid:
             s += str(row) + "\n"
         return s
 
+    def set(self, row, col, val):
+        """Sets (row, col) to val if both indices are valid"""
+        if 0 <= row < self.height and 0 <= col < self.width:
+            self.grid[row][col] = val
+
+    def modify(self, row, col, func):
+        """Sets (row, col) to func(old_value) if both indices are valid"""
+        if 0 <= row < self.height and 0 <= col < self.width:
+            self.grid[row][col] = func(self.grid[row][col])
+
+    def set_adjacent_9_fields(self, row, col, val):
+        """Sets the field at (row, col) and its 8 adjacent fields to `val`"""
+        for drow in range(-1, 2):
+            for dcol in range(-1, 2):
+                self.set(row + drow, col + dcol, val)
+
 
 class BoolGrid(Grid):
     def __repr__(self) -> str:
@@ -23,11 +39,12 @@ class BoolGrid(Grid):
             s += "\n"
         return s
 
-    def set_adjacent_9_fields(self, row, col, val):
-        """Sets the field at (row, col) and its 8 adjacent fields to `val`"""
-        for drow in range(-1, 2):
-            for dcol in range(-1, 2):
-                new_row = row + drow
-                new_col = col + dcol
-                if 0 <= new_row < self.height and 0 <= new_col < self.width:
-                    self.grid[new_row][new_col] = val
+
+class IntGrid(Grid):
+    def __repr__(self) -> str:
+        s = ""
+        for row in self.grid:
+            for element in row:
+                s += f"{element: <3}"
+            s += "\n"
+        return s
