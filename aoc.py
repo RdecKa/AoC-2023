@@ -11,6 +11,7 @@ from day06.solution import Day6
 from day07.solution import Day7
 from day08.solution import Day8
 from day09.solution import Day9
+from day10.solution import Day10
 
 
 parser = argparse.ArgumentParser(
@@ -29,7 +30,7 @@ parser.add_argument("-t", "--test", type=bool, help="test all puzzles")
 args = parser.parse_args()
 
 
-solutions = [None, Day1, Day2, Day3, Day4, Day5, Day6, Day7, Day8, Day9]
+solutions = [None, Day1, Day2, Day3, Day4, Day5, Day6, Day7, Day8, Day9, Day10]
 if args.test:
 
     def report(star, success):
