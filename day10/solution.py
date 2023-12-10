@@ -1,3 +1,4 @@
+from aoclib.grid import Grid
 from aoclib.puzzle import Puzzle
 from enum import Enum
 
@@ -34,8 +35,10 @@ class Pose:
 class PipeMap:
     def __init__(self, lines: list[str]) -> None:
         self.grid = lines
+        self.clean_grid = Grid(len(lines[0]), len(lines), ".")
+        self.loop_len = None
 
-    def find_start_pose(self) -> tuple[int, int]:
+    def find_start_pose(self) -> Pose:
         for i, row in enumerate(self.grid):
             start_col = row.find("S")
             if start_col > -1:
@@ -99,26 +102,107 @@ class PipeMap:
         print(pipe_tile, current_orientation)
         raise AssertionError
 
-    def find_loop_length(self):
+    def find_loop(self):
+        """And save "clean" loop"""
         start_pose = self.find_start_pose()
         loop_length = 0
         pose = start_pose
-        while (pose[0], pose[1]) != (start_pose[0], start_pose[1]) or loop_length == 0:
+        while (pose.row, pose.col) != (
+            start_pose.row,
+            start_pose.col,
+        ) or loop_length == 0:
             pose = self.get_next_pose(pose)
             loop_length += 1
-        return loop_length
+            self.clean_grid[pose.row][pose.col] = self.grid[pose.row][pose.col]
+        self.loop_len = loop_length
+        s = self.get_s_pipe_tile(start_pose.orientation, pose.orientation)
+        self.clean_grid[start_pose.row][start_pose.col] = s
+
+    def get_s_pipe_tile(
+        self, start_orientation: Orientation, end_orientation: Orientation
+    ) -> str:
+        if start_orientation == end_orientation:
+            if start_orientation in (Orientation.NORTH, Orientation.SOUTH):
+                return "|"
+            return "-"
+
+        match start_orientation:
+            case Orientation.NORTH:
+                match end_orientation:
+                    case Orientation.EAST:
+                        return "J"
+                    case Orientation.WEST:
+                        return "L"
+            case Orientation.SOUTH:
+                match end_orientation:
+                    case Orientation.EAST:
+                        return "7"
+                    case Orientation.WEST:
+                        return "F"
+            case Orientation.EAST:
+                match end_orientation:
+                    case Orientation.NORTH:
+                        return "F"
+                    case Orientation.SOUTH:
+                        return "L"
+            case Orientation.WEST:
+                match end_orientation:
+                    case Orientation.NORTH:
+                        return "7"
+                    case Orientation.SOUTH:
+                        return "J"
+        raise AssertionError
+
+    def print_clean_loop(self):
+        for row in self.clean_grid:
+            print("".join(row))
+
+    def count_enclosed_fields_in_row(self, row: list[str]):
+        total = 0
+        in_loop = False
+        border_enter_orientation = None
+        for field in row:
+            match field:
+                case ".":
+                    if in_loop:
+                        total += 1
+                case "-":
+                    continue
+                case "|":
+                    in_loop = not in_loop
+                case "L":
+                    border_enter_orientation = Orientation.NORTH
+                case "F":
+                    border_enter_orientation = Orientation.SOUTH
+                case "J":
+                    if border_enter_orientation == Orientation.SOUTH:
+                        in_loop = not in_loop
+                    border_enter_orientation = None
+                case "7":
+                    if border_enter_orientation == Orientation.NORTH:
+                        in_loop = not in_loop
+                    border_enter_orientation = None
+        return total
+
+    def count_enclosed_fields(self):
+        return sum(self.count_enclosed_fields_in_row(row) for row in self.clean_grid)
 
 
 class Day10(Puzzle):
     def __init__(self, filename):
         super().__init__(filename)
+
+        lines = self.filereader.lines()
+        self.pipe_map = PipeMap(list(lines))
+        self.pipe_map.find_loop()
+
         self.star1_solution = 6820
-        self.star2_solution = None
+        self.star2_solution = 337
 
     def star1(self):
-        lines = self.filereader.lines()
-        pipe_map = PipeMap(list(lines))
-        return pipe_map.find_loop_length() // 2
+        return self.pipe_map.loop_len // 2
 
     def star2(self):
-        return 0
+        # If we cross the loop one/three/five times, we're in the loop.
+        # If we cross the loop two/four/six times, we're outside the loop.
+        return self.pipe_map.count_enclosed_fields()
