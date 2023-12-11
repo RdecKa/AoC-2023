@@ -46,13 +46,16 @@ class Universe:
             + f"Expanded: {self.expanded_galaxy_locations}"
         )
 
-    def expand(self):
+    def expand(self, multiplier: int):
         for original_row, original_col in self.galaxy_locations:
             # Count number of smaller rows/cols that are empty
             smaller_rows = count_smaller_values(self.empty_rows, original_row)
             smaller_cols = count_smaller_values(self.empty_cols, original_col)
             self.expanded_galaxy_locations.append(
-                Position(original_row + smaller_rows, original_col + smaller_cols)
+                Position(
+                    original_row + smaller_rows * (multiplier - 1),
+                    original_col + smaller_cols * (multiplier - 1),
+                )
             )
 
     def sum_expanded_distances(self):
@@ -90,12 +93,14 @@ class Day11(Puzzle):
     def __init__(self, filename):
         super().__init__(filename)
         self.star1_solution = 9734203
-        self.star2_solution = None
+        self.star2_solution = 568914596391
 
     def star1(self):
         universe = parse_input(self.filereader.lines())
-        universe.expand()
+        universe.expand(2)
         return universe.sum_expanded_distances()
 
     def star2(self):
-        return 0
+        universe = parse_input(self.filereader.lines())
+        universe.expand(1000000)
+        return universe.sum_expanded_distances()
