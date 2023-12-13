@@ -4,6 +4,9 @@ OPERATIONAL = "."
 DEFECT = "#"
 UNKNOWN = "?"
 
+# Cleared after processing every row
+memo = {}
+
 
 def parse_input_line(line: str):
     spring_row, groups_str = line.split(" ")
@@ -40,6 +43,9 @@ def handle_defect_group(row: str, start_pos: int, groups: list[int]):
 
 
 def count_possible_configurations(row: str, start_pos: int, groups: list[int]):
+    memo_key = (start_pos, len(groups))
+    if memo_key in memo:
+        return memo[memo_key]
     if len(groups) == 0:
         for spring in row[start_pos:]:
             if spring == DEFECT:
@@ -65,25 +71,31 @@ def count_possible_configurations(row: str, start_pos: int, groups: list[int]):
     # row[start_pos] == UNKNOWN
     count_if_operational = count_possible_configurations(row, start_pos + 1, groups)
     count_if_defect = handle_defect_group(row, start_pos, groups)
-    return count_if_operational + count_if_defect
+    result = count_if_operational + count_if_defect
+    memo[memo_key] = result
+    return result
 
 
 class Day12(Puzzle):
     def __init__(self, filename):
         super().__init__(filename)
         self.star1_solution = 7169
-        self.star2_solution = None
+        self.star2_solution = 1738259948652
 
     def star1(self):
+        global memo
         rows = self.filereader.lines(parse_input_line)
         total = 0
         for row, groups in rows:
+            memo = {}
             total += count_possible_configurations(row, 0, groups)
         return total
 
     def star2(self):
+        global memo
         rows = self.filereader.lines(parse_folded_input_line)
         total = 0
         for row, groups in rows:
+            memo = {}
             total += count_possible_configurations(row, 0, groups)
         return total
