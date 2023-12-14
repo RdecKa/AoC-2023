@@ -14,6 +14,7 @@ from day09.solution import Day9
 from day10.solution import Day10
 from day11.solution import Day11
 from day12.solution import Day12
+from day14.solution import Day14
 
 
 parser = argparse.ArgumentParser(
@@ -46,6 +47,8 @@ solutions = [
     Day10,
     Day11,
     Day12,
+    None,
+    Day14,
 ]
 if args.test:
 
