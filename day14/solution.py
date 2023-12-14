@@ -27,6 +27,8 @@ class Platform:
         self.num_cols = len(rows[0])
         self.rocks = []
         self.parse_grid(rows)
+        # Store seen configurations because they repeat themselves
+        self.seen_configurations = {}
 
     def parse_grid(self, rows: list[str]):
         for row_idx, row in enumerate(rows):
@@ -88,6 +90,21 @@ class Platform:
         self.turn_north_or_south(north=False)
         self.turn_west_or_east(west=False)
 
+    def perform_cycles(self, n):
+        i = 0
+        while i < n:
+            self.perform_cycle()
+            key = tuple((row, col) for row, col, type in self.rocks if type == ROUNDED)
+            if key in self.seen_configurations:
+                step = i - self.seen_configurations[key]
+                break
+            self.seen_configurations[key] = i
+            i += 1
+        remaining_cycles = n - i
+        remaining_after_skipped_cycles = remaining_cycles % step
+        for _ in range(remaining_after_skipped_cycles - 1):
+            self.perform_cycle()
+
 
 class Day14(Puzzle):
     def __init__(self, filename):
@@ -95,7 +112,7 @@ class Day14(Puzzle):
         self.rows = list(self.filereader.lines())
 
         self.star1_solution = 108857
-        self.star2_solution = None
+        self.star2_solution = 95273
 
     def star1(self):
         platform = Platform(self.rows)
@@ -104,9 +121,5 @@ class Day14(Puzzle):
 
     def star2(self):
         platform = Platform(self.rows)
-        cycles = 1000000000
-        for i in range(cycles):
-            if i % 10000 == 0:
-                print(i, i / cycles * 100)
-            platform.perform_cycle()
+        platform.perform_cycles(1000000000)
         return platform.calculate_north_load()
