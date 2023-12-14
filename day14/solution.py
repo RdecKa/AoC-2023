@@ -42,33 +42,71 @@ class Platform:
                 load += max_load_single_rock - row_idx
         return load
 
-    def turn_north(self):
+    def turn_north_or_south(self, north: bool):
         # Sort by row (0) for north and south
-        # Sort by col (1) for west and east
-        rocks = sorted(self.rocks, key=itemgetter(0), reverse=False)
-        last_blockers = [-1] * self.num_cols
-        for rock_idx, (row_idx, col_idx, rock_type) in enumerate(rocks):
+        if north:
+            self.rocks.sort(key=itemgetter(0), reverse=False)
+            last_blockers = [-1] * self.num_cols
+        else:
+            self.rocks.sort(key=itemgetter(0), reverse=True)
+            last_blockers = [self.num_rows] * self.num_cols
+
+        for rock_idx, (row_idx, col_idx, rock_type) in enumerate(self.rocks):
             if rock_type == CUBE:
                 last_blockers[col_idx] = row_idx
             elif rock_type == ROUNDED:
-                new_row_idx = last_blockers[col_idx] + 1
-                rocks[rock_idx] = (new_row_idx, col_idx, rock_type)
-                last_blockers[col_idx] += 1
-        self.rocks = rocks
+                if north:
+                    new_row_idx = last_blockers[col_idx] + 1
+                else:
+                    new_row_idx = last_blockers[col_idx] - 1
+                self.rocks[rock_idx] = (new_row_idx, col_idx, rock_type)
+                last_blockers[col_idx] = new_row_idx
+
+    def turn_west_or_east(self, west: bool):
+        # Sort by col (1) for west and east
+        if west:
+            self.rocks.sort(key=itemgetter(1), reverse=False)
+            last_blockers = [-1] * self.num_rows
+        else:
+            self.rocks.sort(key=itemgetter(1), reverse=True)
+            last_blockers = [self.num_cols] * self.num_rows
+
+        for rock_idx, (row_idx, col_idx, rock_type) in enumerate(self.rocks):
+            if rock_type == CUBE:
+                last_blockers[row_idx] = col_idx
+            elif rock_type == ROUNDED:
+                if west:
+                    new_col_idx = last_blockers[row_idx] + 1
+                else:
+                    new_col_idx = last_blockers[row_idx] - 1
+                self.rocks[rock_idx] = (row_idx, new_col_idx, rock_type)
+                last_blockers[row_idx] = new_col_idx
+
+    def perform_cycle(self):
+        self.turn_north_or_south(north=True)
+        self.turn_west_or_east(west=True)
+        self.turn_north_or_south(north=False)
+        self.turn_west_or_east(west=False)
 
 
 class Day14(Puzzle):
     def __init__(self, filename):
         super().__init__(filename)
-        rows = list(self.filereader.lines())
-        self.platform = Platform(rows)
+        self.rows = list(self.filereader.lines())
 
         self.star1_solution = 108857
         self.star2_solution = None
 
     def star1(self):
-        self.platform.turn_north()
-        return self.platform.calculate_north_load()
+        platform = Platform(self.rows)
+        platform.turn_north_or_south(north=True)
+        return platform.calculate_north_load()
 
     def star2(self):
-        return 0
+        platform = Platform(self.rows)
+        cycles = 1000000000
+        for i in range(cycles):
+            if i % 10000 == 0:
+                print(i, i / cycles * 100)
+            platform.perform_cycle()
+        return platform.calculate_north_load()
