@@ -14,6 +14,7 @@ from day09.solution import Day9
 from day10.solution import Day10
 from day11.solution import Day11
 from day12.solution import Day12
+from day13.solution import Day13
 from day14.solution import Day14
 from day15.solution import Day15
 
@@ -48,7 +49,7 @@ solutions = [
     Day10,
     Day11,
     Day12,
-    None,
+    Day13,
     Day14,
     Day15,
 ]
